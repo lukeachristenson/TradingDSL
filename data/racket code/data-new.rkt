@@ -14,11 +14,13 @@
 
 
 ;; A Datapoint is a (stockdata Number Number)
-(define-struct stockdata (open close)) ;for a single ticker on a given date
+(define-struct stock-data (open close)) ;for a single ticker on a given date
 
 
 ;; A DataKey is a (key Ticker Date)
-(define-struct key (ticker date))
+(define-struct key
+  (ticker date)
+  #:transparent)
 
 
 ;; A Ticker is one of
@@ -47,11 +49,20 @@
 (define (csv-list->table lst)
   (define column-names (first lst))
   (define row-lists (rest lst))
-  (for/list ([row-list row-lists])
-    (for/hash ([column-name column-names]
-               [data row-list])
-      (values (string->symbol column-name) data))))
+  (for/hash ([row-list row-lists])
+    (values (key (second row-list)
+                 (first row-list))
+            (stock-data (third row-list)
+                       (fourth row-list)))))
 
 
+(define table (load-table "../5y500-data/pricedata-5y-with-metrics.csv"))
 
-(load-table "../1y50-data/1y50.csv")
+
+(define (get-stock-data ticker date)
+  (hash-ref table (key ticker date)))
+
+
+(get-stock-data "AAPL" "2024-01-01")
+ 
+ 
