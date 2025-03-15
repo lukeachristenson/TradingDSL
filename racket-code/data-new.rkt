@@ -4,6 +4,7 @@
 ;; Handles data acquisition, formatting, and manipulation
 
 (require csv-reading)
+(provide (all-defined-out))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -14,11 +15,13 @@
 
 
 ;; A Datapoint is a (stockdata Number Number)
-(define-struct stockdata (open close)) ;for a single ticker on a given date
+(define-struct stock-data (open close)) ;for a single ticker on a given date
 
 
 ;; A DataKey is a (key Ticker Date)
-(define-struct key (ticker date))
+(define-struct key
+  (ticker date)
+  #:transparent)
 
 
 ;; A Ticker is one of
@@ -29,5 +32,38 @@
 (define-struct date (year month day))
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                         ;;
+;;      LOADING DATA       ;;
+;;                         ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Data is a (Map DataKey DataPoint)
-(require csv-reading) ; Import the CSV reader
+(require csv-reading)
+
+;; Path -> Table
+(define (load-table path)
+  (with-input-from-file path
+    (lambda () (csv-list->table (csv->list (current-input-port))))))
+ 
+(define (csv-list->table lst)
+  (define column-names (first lst))
+  (define row-lists (rest lst))
+  (for/hash ([row-list row-lists])
+    (values (key (second row-list)
+                 (first row-list))
+            (stock-data (third row-list)
+                       (fourth row-list)))))
+
+
+(define table (load-table "../data/5y500-data/pricedata-5y-with-metrics.csv"))
+
+
+#;(define (get-stock-data ticker date) 
+  (hash-ref table (key ticker date)))
+
+
+;(get-stock-data "AAPL" "2024-01-01")
+ 
+ 

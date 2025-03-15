@@ -59,10 +59,10 @@
 (define table (load-table "../5y500-data/pricedata-5y-with-metrics.csv"))
 
 
-(define (get-stock-data ticker date)
+#;(define (get-stock-data ticker date) 
   (hash-ref table (key ticker date)))
 
 
-(get-stock-data "AAPL" "2024-01-01")
+;(get-stock-data "AAPL" "2024-01-01")
  
  
