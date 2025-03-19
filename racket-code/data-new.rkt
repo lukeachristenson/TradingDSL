@@ -89,12 +89,12 @@
 ;;Adds n days to a given date struct
 (define (add-days d n)
   (racket-date->date (seconds->date (+ (date->seconds (date->racket-date d))
-                                       (* n 90000))))) ;; 86400 seconds in a day
+                                       (* n 90000)))))
 
 ;Subtracts n days from given date struct
 (define (sub-days d n)
   (racket-date->date (seconds->date (- (date->seconds (date->racket-date d))
-                                       (* n 86450)))))
+                                       (* n 90000)))))
 
 
 ;(define d (reduced-date 2024 01 01)) 

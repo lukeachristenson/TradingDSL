@@ -41,7 +41,7 @@
     cur-mul))
 
 
-(backtest st-1
+#;(backtest st-1
           (reduced-date 2024 01 01)
           (reduced-date 2024 12 25))
 

@@ -68,21 +68,30 @@
 
 (define 1y 365)
 (define 6m 182)
+(define 3m 90)
 (define 1m 30)
 (define 2w 14)
 (define 1w 7)
 (define 1d 1)
 
 
-#;(define-syntax def/strat 
+(define-syntax def/strat 
   (lambda (stx)
     (syntax-parse stx
       [(_ id:id expr:expr)
-       #'(define id (lambda (date) expr))])))
+       #'(define id expr)])))
 
 
-(define st-1 (top-performer #:period 1y))
-;(st-1 (reduced-date 2024 12 31))
+(def/strat st-1 (top-performer #:period 1y))
+(st-1 (reduced-date 2024 12 31))
+
+
+
+#;(def/custom-strat (/ (stock-data-close
+                      (get-stock-data ticker end-date)) 
+                     (stock-data-close
+                      (get-stock-data ticker start-date))))
+
 
 
 
