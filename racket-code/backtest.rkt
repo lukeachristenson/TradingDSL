@@ -38,12 +38,12 @@
        (set! buy-price (stock-data-close (get-stock-data new-ticker day)))
        (set! cur-ticker new-ticker))
      trading-days)
-    cur-ticker))
+    cur-mul))
 
 
-#;(backtest st-1
+(backtest st-1
           (reduced-date 2024 01 01)
-          (reduced-date 2024 12 31))
+          (reduced-date 2024 12 25))
 
 
 #;(cons start-date
