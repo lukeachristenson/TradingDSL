@@ -131,8 +131,7 @@
                         (string->number (fourth row-list)))))) 
 
 
-(define STOCK-DATA (load-table "../data/5y500-data/pricedata-5y-with-metrics.csv"))
-
+(define STOCK-DATA (load-table "./data/5y500-data/pricedata-5y-with-metrics.csv"))
 
 
 (define (get-stock-data ticker dt)  

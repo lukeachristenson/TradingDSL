@@ -83,7 +83,7 @@
 
 
 (def/strat st-1 (top-performer #:period 1y))
-(st-1 (reduced-date 2024 12 31))
+;;(st-1 (reduced-date 2024 12 31))
 
 
 
