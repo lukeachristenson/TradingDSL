@@ -111,8 +111,13 @@
 (define STOCK-DATA (load-table "../data/5y500-data/pricedata-5y-with-metrics.csv"))
 
 
+
 (define (get-stock-data ticker date)  
   (hash-ref STOCK-DATA (key ticker date))) 
+
+(define (has-stock-data ticker date)
+  (define data (get-stock-data ticker date))
+  (not (= (stock-data-close data) -1)))
 
 (define (is-weekend-or-holiday date)
   (with-handlers ([exn:fail?
@@ -120,5 +125,7 @@
     (get-stock-data "AAPL" date)
     #f))
 
-
-(is-weekend-or-holiday (string->date "2024-01-01")) 
+(define (next-trading-day date)
+  (if (is-weekend-or-holiday date)
+      (next-trading-day (add-days date 1))
+      date))

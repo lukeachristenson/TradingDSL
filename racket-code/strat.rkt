@@ -9,6 +9,9 @@
 ; A Strat is a (-> Date (Hash Ticker Weight))
 ; A period is one of 1y, 6m, 1m, 2w
 
+; A TickerWeight is a (ticker-weight Ticker Number)
+(define-struct ticker-weight (ticker weight) #:transparent)
+
 (define stock-tickers
   '("A" "AAPL" "ABBV" "ABNB" "ABT" "ACGL" "ACN" "ADBE" "ADI" "ADM" "ADP" "ADSK" "AEE" "AEP" "AES" "AFL" "AIG" "AIZ"
     "AJG" "AKAM" "ALB" "ALGN" "ALL" "ALLE" "AMAT" "AMCR" "AMD" "AME" "AMGN" "AMP" "AMT" "AMTM" "AMZN" "ANET" "ANSS"
@@ -41,18 +44,28 @@
 
 (define (top-performer #:period period)
   (lambda (date)
-    (sort (for/list ([ticker stock-tickers])
-            (list
-             ticker 
-             (/ (stock-data-close
-                 (get-stock-data ticker date)) 
-                (stock-data-close
-                 (get-stock-data ticker (sub-days date period))))
-             ))
-          (lambda (x y) (> (second x)
-                           (second y))))))
+    (if (is-weekend-or-holiday date)
+        (error "provided date is a holiday") 
+        (let ([start-date (next-trading-day
+                           (sub-days date period))]
+              [end-date date])
+          (sort
+           (for/list
+               ([ticker stock-tickers])
+             (ticker-weight
+              ticker
+              (if (and (has-stock-data ticker start-date)
+                       (has-stock-data ticker end-date))
+                  (/ (stock-data-close
+                      (get-stock-data ticker end-date)) 
+                     (stock-data-close
+                      (get-stock-data ticker start-date)))
+                  0)))
+           (lambda (x y) (> (ticker-weight-weight x)
+                            (ticker-weight-weight y))))))))
 
-(define 1y 364)
+
+(define 1y 365)
 (define 6m 182)
 (define 1m 30)
 (define 2w 14)
@@ -60,3 +73,5 @@
 (define 1d 1)
 
 ((top-performer #:period 1y) (reduced-date 2024 12 31))
+
+
