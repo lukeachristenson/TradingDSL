@@ -12,7 +12,6 @@
   (compose-strategies annual-momentum biannual-momentum 
                      #:weights (0.7 0.3)))
 
-;; Print some results
 (displayln "Top 5 stocks from annual momentum strategy:")
 (displayln (take (annual-momentum (reduced-date 2024 1 16)) 5))
 

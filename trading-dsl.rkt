@@ -1,7 +1,6 @@
 #lang racket
 
 ;; Trading Strategy DSL - Core definitions
-;; This file integrates with your existing code in racket-code/
 
 (require (for-syntax syntax/parse))
 (require "./racket-code/data-new.rkt")
@@ -126,7 +125,6 @@
                 new-price
                 (* cumulative-return day-return))))))
 
-;; Re-implement active-trading-days from your backtest.rkt
 (define (active-trading-days start-date end-date)
   (cond
     [(date-before? end-date start-date) '()]
@@ -134,21 +132,3 @@
                 (active-trading-days (next-trading-day
                                       (add-days start-date 1))
                                      end-date))]))
-
-;; -------------------------------------
-;; Example Usage
-;; -------------------------------------
-
-;; Define a few basic strategies
-;;(define-strategy momentum-1y (top-performer #:period 1y))
-;;(define-strategy momentum-6m (top-performer #:period 6m))
-
-;; Compose strategies
-#;(define-strategy balanced 
-  (compose-strategies momentum-1y momentum-6m #:weights (0.7 0.3)))
-
-;; Run backtest
-#;(backtest balanced
-          #:from (reduced-date 2023 1 1)
-          #:to (reduced-date 2023 12 31)
-          #:top-n 5)
