@@ -38,7 +38,7 @@
 (define (string->date str)
   (match (regexp-match #px"^(\\d{4})-(\\d{2})-(\\d{2})$" str)
     [(list _ year month day)
-     (make-reduced-date (string->number year)
+     (reduced-date (string->number year)
                 (string->number month)
                 (string->number day))]
     [_ (error "Invalid date format. Expected YYYY-MM-DD.")]))
@@ -48,6 +48,23 @@
 (check-equal? (string->date "2025-03-18") (reduced-date 2025 03 18))
 
 
+
+; String -> Date
+; Parse a date string and return a date struct
+(define (date->string date)
+  (string-append
+   (number->string (reduced-date-year date))
+   "-"
+   (number->string (reduced-date-month date))
+   "-"
+   (number->string (reduced-date-day date))))
+
+
+
+(check-equal? (string->date "2024-01-02") (reduced-date 2024 01 02))
+(check-equal? (string->date "2025-03-18") (reduced-date 2025 03 18))
+(check-equal? (date->string (reduced-date 2024 01 02)) "2024-1-2")
+(check-equal? (date->string (reduced-date 2025 03 18)) "2025-3-18")
 
 ;; Convert a date struct to a racket date object
 (define (date->racket-date d)
@@ -72,17 +89,23 @@
 ;;Adds n days to a given date struct
 (define (add-days d n)
   (racket-date->date (seconds->date (+ (date->seconds (date->racket-date d))
-                                       (* n 86400))))) ;; 86400 seconds in a day
+                                       (* n 90000))))) ;; 86400 seconds in a day
 
 ;Subtracts n days from given date struct
 (define (sub-days d n)
   (racket-date->date (seconds->date (- (date->seconds (date->racket-date d))
-                                       (* n 86400)))))
+                                       (* n 86450)))))
 
-;; Example usage
 
-(define d (reduced-date 2024 01 01)) 
-(check-equal? (add-days d 365) (reduced-date 2024 12 31))
+;(define d (reduced-date 2024 01 01)) 
+;(check-equal? (add-days d 365) (reduced-date 2024 12 31))
+
+
+; Date Date -> Boolean
+; If the first date is before the second
+(define (date-before? d1 d2)
+  (< (date->seconds (date->racket-date d1))
+     (date->seconds (date->racket-date d2))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                         ;;
 ;;      LOADING DATA       ;;
@@ -112,20 +135,22 @@
 
 
 
-(define (get-stock-data ticker date)  
-  (hash-ref STOCK-DATA (key ticker date))) 
+(define (get-stock-data ticker dt)  
+  (hash-ref STOCK-DATA (key ticker dt))) 
 
-(define (has-stock-data ticker date)
-  (define data (get-stock-data ticker date))
+(define (has-stock-data ticker dt)
+  (define data (get-stock-data ticker dt))
   (not (= (stock-data-close data) -1)))
 
-(define (is-weekend-or-holiday date)
+(define (is-weekend-or-holiday dt)
   (with-handlers ([exn:fail?
                    (λ (e) #t)])
-    (get-stock-data "AAPL" date)
+    (get-stock-data "AAPL" dt)
     #f))
 
-(define (next-trading-day date)
-  (if (is-weekend-or-holiday date)
-      (next-trading-day (add-days date 1))
-      date))
+(define (next-trading-day dt)
+  (if (is-weekend-or-holiday dt)
+      (next-trading-day (add-days dt 1))
+      dt)) 
+
+;(next-trading-day (reduced-date 2024 11 2))

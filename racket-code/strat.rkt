@@ -4,7 +4,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(require "data-new.rkt")
+(require "data-new.rkt" (for-syntax syntax/parse))
+(provide st-1 ticker-weight ticker-weight-weight ticker-weight-ticker top-performer)
 
 ; A Strat is a (-> Date (Hash Ticker Weight))
 ; A period is one of 1y, 6m, 1m, 2w
@@ -43,8 +44,8 @@
     "WELL" "WFC" "WM" "WMB" "WMT" "WRB" "WST" "WTW" "WY" "WYNN" "XEL" "XOM" "XYL" "YUM" "ZBH" "ZBRA" "ZTS"))
 
 (define (top-performer #:period period)
-  (lambda (date)
-    (if (is-weekend-or-holiday date)
+    (lambda (date)
+      (if (is-weekend-or-holiday date) 
         (error "provided date is a holiday") 
         (let ([start-date (next-trading-day
                            (sub-days date period))]
@@ -60,7 +61,7 @@
                       (get-stock-data ticker end-date)) 
                      (stock-data-close
                       (get-stock-data ticker start-date)))
-                  0)))
+                  0))) ; Some missing data, assume weight 0 in this case
            (lambda (x y) (> (ticker-weight-weight x)
                             (ticker-weight-weight y))))))))
 
@@ -72,6 +73,21 @@
 (define 1w 7)
 (define 1d 1)
 
-((top-performer #:period 1y) (reduced-date 2024 12 31))
+
+#;(define-syntax def/strat 
+  (lambda (stx)
+    (syntax-parse stx
+      [(_ id:id expr:expr)
+       #'(define id (lambda (date) expr))])))
+
+
+(define st-1 (top-performer #:period 1y))
+;(st-1 (reduced-date 2024 12 31))
+
+
+
+
+
+
 
 
