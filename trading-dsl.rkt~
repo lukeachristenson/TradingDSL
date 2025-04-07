@@ -1,10 +1,10 @@
 #lang racket
 
 ;; Trading Strategy DSL - Core definitions
-;; This file integrates with your existing code in racket-code/
 
 (require (for-syntax syntax/parse))
-(require "./racket-code/data-new.rkt")  ;; Import your existing data handling code
+(require "./racket-code/data-new.rkt")
+(require "./racket-code/strat.rkt")
 
 ;; Provide all DSL definitions
 (provide define-strategy
@@ -12,14 +12,24 @@
          backtest
          ;; Re-provide existing strategy functions
          top-performer
+         reduced-date
          ;; Constants
-         1y 6m 3m 1m 2w 1w 5d 1d)
+         1y 6m 3m 1m 2w 1w 5d 1d) 
+
+;; Define time period constants (in days)
+(define 1y 365) 
+(define 6m 182)
+(define 3m 90)
+(define 1m 30)
+(define 2w 14)
+(define 1w 7)
+(define 5d 5)
+(define 1d 1)
 
 ;; -------------------------------------
 ;; Strategy Definition Macro
 ;; -------------------------------------
 
-;; A more descriptive version of your def/strat macro
 (define-syntax (define-strategy stx)
   (syntax-parse stx
     [(_ name:id expr:expr)
@@ -71,7 +81,7 @@
         (~optional (~seq #:top-n n-val:expr) #:defaults ([n-val 10])))
      #'(run-backtest strategy-expr start-date end-date n-val)]))
 
-;; Backtesting implementation - Simplified version based on your existing code
+;; Backtesting implementation
 (define (run-backtest strategy start-date end-date top-n)
   (define trading-days (active-trading-days start-date end-date))
   
@@ -115,7 +125,6 @@
                 new-price
                 (* cumulative-return day-return))))))
 
-;; Re-implement active-trading-days from your backtest.rkt
 (define (active-trading-days start-date end-date)
   (cond
     [(date-before? end-date start-date) '()]
@@ -124,20 +133,3 @@
                                       (add-days start-date 1))
                                      end-date))]))
 
-;; -------------------------------------
-;; Example Usage
-;; -------------------------------------
-
-;; Define a few basic strategies
-#;(define-strategy momentum-1y (top-performer #:period 1y))
-#;(define-strategy momentum-6m (top-performer #:period 6m))
-
-;; Compose strategies
-#;(define-strategy balanced 
-  (compose-strategies momentum-1y momentum-6m #:weights (0.7 0.3)))
-
-;; Run backtest
-#;(backtest balanced
-          #:from (reduced-date 2023 1 1)
-          #:to (reduced-date 2023 12 31)
-          #:top-n 5)

@@ -5,16 +5,18 @@
 (require (for-syntax syntax/parse))
 (require "./racket-code/data-new.rkt")
 (require "./racket-code/strat.rkt")
+(require syntax-spec-v3
+         (for-syntax syntax/parse racket/list "./racket-code/data-new.rkt"))
 
 ;; Provide all DSL definitions
-(provide define-strategy
+(provide define/strategy
          compose-strategies
          backtest
          ;; Re-provide existing strategy functions
          top-performer
          reduced-date
          ;; Constants
-         1y 6m 3m 1m 2w 1w 5d 1d)
+         1y 6m 3m 1m 2w 1w 5d 1d) 
 
 ;; Define time period constants (in days)
 (define 1y 365) 
@@ -27,13 +29,34 @@
 (define 1d 1)
 
 ;; -------------------------------------
-;; Strategy Definition Macro
+;; Syntax-spec macros
 ;; -------------------------------------
+(begin-for-syntax
+  ;Syntax -> (Maybe Error)
+  (define (check-valid-backtest-period! start-date end-date expr)
+    (unless (date-before? start-date end-date)
+      (raise-syntax-error 'invalid-period "Invalid date range provided to backtest" expr))))
+ 
 
-(define-syntax (define-strategy stx)
-  (syntax-parse stx
-    [(_ name:id expr:expr)
-     #'(define name expr)]))
+(syntax-spec
+  (binding-class strategy
+                 #:description "trading strategy"
+                 #:reference-compiler mutable-reference-compiler)
+  
+  (host-interface/definitions
+   (define/strategy id:strategy expr:racket-expr)
+   #:binding (export id)
+   #'(define id expr))
+
+  (host-interface/expression
+   (backtest s:strategy start-date:racket-expr end-date:racket-expr n-val:racket-expr)
+   #'(run-backtest s start-date end-date n-val))
+
+  #;(host-interface/expression
+   (compose strat1:expr strat2:expr 
+        (~optional (~seq #:weights (w1:number w2:number)) 
+                   #:defaults ([w1 0.5] [w2 0.5])))
+   #'(run-backtest s start-date end-date n-val))) 
 
 ;; -------------------------------------
 ;; Strategy Composition Macro
@@ -72,6 +95,9 @@
 ;; Backtesting Macro
 ;; -------------------------------------
 
+
+
+#|
 ;; Backtest a strategy over time
 (define-syntax (backtest stx)
   (syntax-parse stx
@@ -80,6 +106,8 @@
         #:to end-date:expr
         (~optional (~seq #:top-n n-val:expr) #:defaults ([n-val 10])))
      #'(run-backtest strategy-expr start-date end-date n-val)]))
+|#
+
 
 ;; Backtesting implementation
 (define (run-backtest strategy start-date end-date top-n)
@@ -122,9 +150,9 @@
                [new-price (stock-data-close (get-stock-data new-ticker day))])
           (loop (cdr days)
                 new-ticker
-                new-price
+                new-price 
                 (* cumulative-return day-return))))))
-
+ 
 (define (active-trading-days start-date end-date)
   (cond
     [(date-before? end-date start-date) '()]
@@ -132,3 +160,4 @@
                 (active-trading-days (next-trading-day
                                       (add-days start-date 1))
                                      end-date))]))
+

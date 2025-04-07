@@ -75,18 +75,20 @@
 (define 1d 1)
 
 
-(define-syntax def/strat 
-  (lambda (stx)
-    (syntax-parse stx
-      [(_ id:id expr:expr)
-       #'(define id expr)])))
 
 
-(def/strat st-1 (top-performer #:period 1y))
+(define st-1 (top-performer #:period 1y))
+
+
+
+
+
+
+
+
+
+
 ;;(st-1 (reduced-date 2024 12 31))
-
-
-
 #;(def/custom-strat (/ (stock-data-close
                       (get-stock-data ticker end-date)) 
                      (stock-data-close

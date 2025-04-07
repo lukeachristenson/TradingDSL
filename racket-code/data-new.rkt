@@ -6,6 +6,7 @@
 (require csv-reading)
 (require racket/date)
 (provide (all-defined-out))
+(provide (for-syntax (all-defined-out)))
 (require rackunit)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
