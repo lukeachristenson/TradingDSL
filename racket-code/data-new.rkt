@@ -40,8 +40,8 @@
   (match (regexp-match #px"^(\\d{4})-(\\d{2})-(\\d{2})$" str)
     [(list _ year month day)
      (reduced-date (string->number year)
-                (string->number month)
-                (string->number day))]
+                   (string->number month)
+                   (string->number day))]
     [_ (error "Invalid date format. Expected YYYY-MM-DD.")]))
 
 

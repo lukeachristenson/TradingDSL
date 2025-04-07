@@ -34,7 +34,7 @@
 (begin-for-syntax
   ;Syntax -> (Maybe Error)
   (define (check-valid-backtest-period! start-date end-date expr)
-    (unless (date-before? start-date end-date)
+    (unless (date-before? (string->date start-date) (string->date end-date))
       (raise-syntax-error 'invalid-period "Invalid date range provided to backtest" expr))))
  
 
@@ -49,8 +49,14 @@
    #'(define id expr))
 
   (host-interface/expression
-   (backtest s:strategy start-date:racket-expr end-date:racket-expr n-val:racket-expr)
-   #'(run-backtest s start-date end-date n-val))
+   (backtest s:strategy start-date:string end-date:string n-val:racket-expr)
+   (check-valid-backtest-period!
+    (syntax->datum (attribute start-date))
+    (syntax->datum (attribute end-date)) #'start-date)
+   #'(run-backtest s
+                   start-date
+                   end-date
+                   n-val))
 
   #;(host-interface/expression
    (compose strat1:expr strat2:expr 
@@ -110,7 +116,9 @@
 
 
 ;; Backtesting implementation
-(define (run-backtest strategy start-date end-date top-n)
+(define (run-backtest strategy start-date-str end-date-str top-n)
+  (define start-date (string->date start-date-str))
+  (define end-date (string->date end-date-str))
   (define trading-days (active-trading-days start-date end-date))
   
   (unless (pair? trading-days)
