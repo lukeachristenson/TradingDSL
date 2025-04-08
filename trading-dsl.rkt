@@ -33,9 +33,29 @@
 ;; -------------------------------------
 (begin-for-syntax
   ;Syntax -> (Maybe Error)
-  (define (check-valid-backtest-period! start-date end-date expr)
+  (define (check-valid-interval! start-date end-date expr)
     (unless (date-before? (string->date start-date) (string->date end-date))
-      (raise-syntax-error 'invalid-period "Invalid date range provided to backtest" expr))))
+      (raise-syntax-error 'invalid-period "Invalid date range provided to backtest" expr)))
+
+  (struct period [from to] #:prefab)
+  (define-persistent-symbol-table periods)
+
+
+  (define (store-period! strat-name from to)
+    (symbol-table-set! periods strat-name #`#,(period from to)))
+
+  (define (check-valid-backtest-period! strat-name from to)
+    (unless (and (not (date-before? (string->date (period-to (get-period strat-name)))
+                                    (string->date to)))
+                 (not (date-before? (string->date from)
+                                    (string->date (period-from (get-period strat-name))))))
+      (raise-syntax-error #f "Invalid backtest period: can only backtest during strategy active period" strat-name)))
+      
+
+  (define (get-period strat-name) 
+    (syntax->datum 
+     (symbol-table-ref periods strat-name
+                       (lambda () (raise-syntax-error #f "no active period found" strat-name))))))
  
 
 (syntax-spec
@@ -44,15 +64,24 @@
                  #:reference-compiler mutable-reference-compiler)
   
   (host-interface/definitions
-   (define/strategy id:strategy expr:racket-expr)
+   (define/strategy id:strategy expr:racket-expr #:from from-date:string #:to to-date:string)
    #:binding (export id)
+   (check-valid-interval! (syntax->datum (attribute from-date))
+                        (syntax->datum (attribute to-date))
+                        #'start-date)
+   (store-period! (attribute id)
+                  (attribute from-date)
+                  (attribute to-date))
    #'(define id expr))
 
   (host-interface/expression
    (backtest s:strategy start-date:string end-date:string n-val:racket-expr)
-   (check-valid-backtest-period!
+   (check-valid-interval!
     (syntax->datum (attribute start-date))
     (syntax->datum (attribute end-date)) #'start-date)
+   (check-valid-backtest-period! (attribute s)
+                                 (syntax->datum (attribute start-date))
+                                 (syntax->datum (attribute end-date)))
    #'(run-backtest s
                    start-date
                    end-date
@@ -78,7 +107,7 @@
          (let* ([s1-result (strat1 date)]
                 [s2-result (strat2 date)]
                 [combined (combine-strategy-results s1-result s2-result w1 w2)])
-           combined))]))
+           combined))])) 
 
 ;; Helper function to combine strategy results
 (define (combine-strategy-results results1 results2 weight1 weight2)
