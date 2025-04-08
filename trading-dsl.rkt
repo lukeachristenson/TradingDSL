@@ -10,6 +10,7 @@
 
 ;; Provide all DSL definitions
 (provide define/strategy
+         define/combined-strategy
          compose-strategies
          backtest
          ;; Re-provide existing strategy functions
@@ -35,7 +36,7 @@
   ;Syntax -> (Maybe Error)
   (define (check-valid-interval! start-date end-date expr)
     (unless (date-before? (string->date start-date) (string->date end-date))
-      (raise-syntax-error 'invalid-period "Invalid date range provided to backtest" expr)))
+      (raise-syntax-error 'invalid-period "Invalid date range provided: end date is before start date" expr)))
 
   (struct period [from to] #:prefab)
   (define-persistent-symbol-table periods)
@@ -50,12 +51,23 @@
                  (not (date-before? (string->date from)
                                     (string->date (period-from (get-period strat-name))))))
       (raise-syntax-error #f "Invalid backtest period: can only backtest during strategy active period" strat-name)))
-      
+
+  (define (check-combinable! s1 s2 expr)
+    (let ([to-s1 (string->date (get-period-to s1))]
+          [from-s2 (string->date (get-period-from s2))])
+      (unless (not (date-before? to-s1 from-s2))
+        (raise-syntax-error #f "Uncombinable periods: strat1 is inactive before strat2 is active" expr))))
 
   (define (get-period strat-name) 
     (syntax->datum 
      (symbol-table-ref periods strat-name
-                       (lambda () (raise-syntax-error #f "no active period found" strat-name))))))
+                       (lambda () (raise-syntax-error #f "No active trading period found" strat-name)))))
+
+  (define (get-period-from strat-name)
+    (period-from (get-period strat-name)))
+
+  (define (get-period-to strat-name)
+    (period-to (get-period strat-name))))
  
 
 (syntax-spec
@@ -67,17 +79,31 @@
    (define/strategy id:strategy expr:racket-expr #:from from-date:string #:to to-date:string)
    #:binding (export id)
    (check-valid-interval! (syntax->datum (attribute from-date))
-                        (syntax->datum (attribute to-date))
+                          (syntax->datum (attribute to-date))
                         #'start-date)
    (store-period! (attribute id)
                   (attribute from-date)
                   (attribute to-date))
-   #'(define id expr))
+   #'(define id expr)) 
+
+  (host-interface/definitions
+   (define/combined-strategy new:strategy s1:strategy s2:strategy #:mid mid-date:string)
+   #:binding (export new)
+   (check-valid-interval! (get-period-from (attribute s1))
+                          (get-period-to (attribute s2))
+                          #'new)
+   (check-combinable! (attribute s1) (attribute s2) #'s2)
+   (store-period! (attribute new)
+                  (get-period-from (attribute s1))
+                  (get-period-to (attribute s2)))
+   #'(define new (lambda (date) (if (date-before? date (string->date mid-date))
+                                    (s1 date) 
+                                    (s2 date)))))
 
   (host-interface/expression
    (backtest s:strategy start-date:string end-date:string n-val:racket-expr)
    (check-valid-interval!
-    (syntax->datum (attribute start-date))
+    (syntax->datum (attribute start-date)) 
     (syntax->datum (attribute end-date)) #'start-date)
    (check-valid-backtest-period! (attribute s)
                                  (syntax->datum (attribute start-date))
@@ -106,11 +132,11 @@
      #'(lambda (date)
          (let* ([s1-result (strat1 date)]
                 [s2-result (strat2 date)]
-                [combined (combine-strategy-results s1-result s2-result w1 w2)])
+                [combined (compose-strategy-results s1-result s2-result w1 w2)])
            combined))])) 
 
 ;; Helper function to combine strategy results
-(define (combine-strategy-results results1 results2 weight1 weight2)
+(define (compose-strategy-results results1 results2 weight1 weight2)
   (define all-tickers (remove-duplicates 
                        (append (map ticker-weight-ticker results1)
                                (map ticker-weight-ticker results2))))
@@ -122,9 +148,9 @@
   (for/list ([ticker all-tickers])
     (define weight1-val (get-weight ticker results1))
     (define weight2-val (get-weight ticker results2))
-    (define combined-weight (+ (* weight1 weight1-val)
+    (define composed-weight (+ (* weight1 weight1-val)
                                (* weight2 weight2-val)))
-    (ticker-weight ticker combined-weight)))
+    (ticker-weight ticker composed-weight)))
 
 ;; -------------------------------------
 ;; Backtesting Macro
