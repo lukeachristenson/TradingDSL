@@ -1,0 +1,143 @@
+#lang racket
+
+;; Trading DSL Complete Demo
+;; This file demonstrates all features of the Trading DSL
+
+(require "trading-dsl.rkt")
+
+;; =================================================
+;; 1. Define Individual Strategies
+;; =================================================
+
+;; Annual momentum strategy (top performers over 1 year)
+(define/strategy annual-momentum (top-performer #:period 1y)
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+;; 6-month momentum strategy
+(define/strategy biannual-momentum (top-performer #:period 6m)
+  #:from "2024-06-01"
+  #:to "2024-12-20")
+
+;; 1-month momentum strategy
+(define/strategy monthly-momentum (top-performer #:period 1m)
+  #:from "2024-01-05"
+  #:to "2024-12-20")
+
+;; 2-week momentum strategy
+(define/strategy short-term-momentum (top-performer #:period 2w)
+  #:from "2024-01-05"
+  #:to "2024-12-20")
+
+;; =================================================
+;; 2. Demonstrate Time-Based Strategy Combination
+;; =================================================
+(displayln "\n=== Combined Strategies (Time-Based) ===")
+
+;; Combined strategy with mid-point switchover
+(define/combined-strategy seasonal-strategy
+  annual-momentum      ;; Use annual momentum strategy initially
+  biannual-momentum    ;; Switch to biannual momentum at the midpoint
+  #:mid "2024-06-03")  ;; Switchover date
+
+;; =================================================
+;; 3. Demonstrate Weighted Strategy Composition
+;; =================================================
+(displayln "\n=== Weighted Strategy Compositions ===")
+
+;; Compose strategies with explicit weights (70% annual, 30% biannual)
+(define/strategy weighted-long-term
+  (compose-strategies annual-momentum biannual-momentum
+                     #:weights (0.7 0.3))
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+;; Compose strategies with different weights (30% monthly, 70% short-term)
+(define/strategy weighted-short-term
+  (compose-strategies monthly-momentum short-term-momentum
+                     #:weights (0.3 0.7))
+  #:from "2024-01-05"
+  #:to "2024-12-20")
+
+;; =================================================
+;; 4. Demonstrate Backtesting
+;; =================================================
+(displayln "\n=== Backtesting Results ===")
+
+;; Backtest the annual momentum strategy
+(displayln "Annual Momentum Strategy:")
+(displayln (backtest annual-momentum 
+                     "2024-01-05"
+                     "2024-06-05" 
+                     5))
+
+;; Backtest the combined strategy
+(displayln "\nSeasonal Strategy:")
+(displayln (backtest seasonal-strategy
+                     "2024-01-05"
+                     "2024-12-20" 
+                     5))
+
+;; Backtest weighted strategy
+(displayln "\nWeighted Long-Term Strategy:")
+(displayln (backtest weighted-long-term
+                     "2024-01-05"
+                     "2024-06-05" 
+                     5))
+
+;; =================================================
+;; 5. Demonstrate Strategy Display
+;; =================================================
+(displayln "\n=== Strategy Analysis ===")
+
+;; Display allocation for annual momentum strategy
+(displayln "\nPortfolio Allocation for Annual Momentum Strategy:")
+(display-strategy-allocation annual-momentum (reduced-date 2024 1 16) 10)
+
+;; Compare strategies
+(displayln "\nStrategy Comparison:")
+(display-strategy-comparison 
+  (list annual-momentum weighted-long-term monthly-momentum short-term-momentum)
+  (list "Annual" "Weighted Long-Term" "Monthly" "Short-Term")
+  (reduced-date 2024 1 16)
+  5)
+
+;; =================================================
+;; 6. Demonstrate Error Handling (Commented Out)
+;; =================================================
+
+#|
+;; This would fail with a compile-time error:
+;; Invalid date range (end date before start date)
+(define/strategy invalid-dates-strategy
+  (top-performer #:period 1y)
+  #:from "2024-06-05"
+  #:to "2024-01-05")
+
+;; This would fail with a compile-time error:
+;; Non-overlapping strategy periods
+(define/strategy strategy-a
+  (top-performer #:period 1y)
+  #:from "2024-01-05"
+  #:to "2024-03-05")
+
+(define/strategy strategy-b
+  (top-performer #:period 1y)
+  #:from "2024-04-05"
+  #:to "2024-06-05")
+
+;; Would fail: no overlap between strategy periods
+(define/strategy invalid-composition
+  (compose-strategies strategy-a strategy-b)
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+;; This would fail with a compile-time error:
+;; Backtesting outside strategy's active period
+(backtest annual-momentum
+          "2023-01-05"  ;; Before strategy's active period
+          "2024-02-05"
+          5)
+|#
+
+(displayln "\nDemo completed successfully!")

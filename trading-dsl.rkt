@@ -7,19 +7,23 @@
 (require "./racket-code/data-new.rkt")
 (require "./racket-code/strat.rkt")
 (require "./racket-code/backtest.rkt")
+(require "./racket-code/visualization.rkt")
 (require syntax-spec-v3
          (for-syntax syntax/parse racket/list "./racket-code/data-new.rkt"))
 
 ;; Provide all DSL definitions
-(provide define/strategy         ; Define a strategy with an active period
-         define/combined-strategy ; Combine two strategies with a switchover date
-         compose-strategies      ; Compose strategies with weights
-         backtest                ; Backtest a strategy over a time period
+(provide define/strategy
+         define/combined-strategy
+         compose-strategies
+         backtest
          ;; Re-provide existing strategy functions
-         top-performer           ; Strategy for selecting top performing stocks
-         reduced-date            ; Date constructor
+         top-performer
+         reduced-date
+         ;; Display functions
+         display-strategy-allocation
+         display-strategy-comparison
          ;; Constants
-         1y 6m 3m 1m 2w 1w 5d 1d) ; Time period constants
+         1y 6m 3m 1m 2w 1w 5d 1d)
 
 ;; Define time period constants (in days)
 (define 1y 365) 
@@ -137,11 +141,48 @@
 ;; Strategy Composition Macro
 ;; -------------------------------------
 
-;; Compose two strategies with optional weights
+;; Compose two strategies with optional weights and verify date compatibility
 ;; (compose-strategies strat1 strat2 #:weights (w1 w2))
 ;; If weights are not provided, defaults to 50/50 split
 (define-syntax (compose-strategies stx)
   (syntax-parse stx
+    [(_ strat1:id strat2:id 
+        (~optional (~seq #:weights (w1:number w2:number)) 
+                   #:defaults ([w1 0.5] [w2 0.5])))
+     ;; Check if strategies have compatible periods
+     (with-handlers ([exn:fail? (lambda (e) 
+                                  ;; If we can't get period info, just proceed without checking
+                                  #'(lambda (date)
+                                      (let* ([s1-result (strat1 date)]
+                                             [s2-result (strat2 date)]
+                                             [combined (compose-strategy-results s1-result s2-result w1 w2)])
+                                        combined)))])
+       (define s1-from (get-period-from (syntax->datum #'strat1)))
+       (define s1-to (get-period-to (syntax->datum #'strat1)))
+       (define s2-from (get-period-from (syntax->datum #'strat2)))
+       (define s2-to (get-period-to (syntax->datum #'strat2)))
+       
+       ;; Find the overlapping period
+       (define overlap-from 
+         (if (date-before? (string->date s1-from) (string->date s2-from))
+             s2-from s1-from))
+       (define overlap-to
+         (if (date-before? (string->date s1-to) (string->date s2-to))
+             s1-to s2-to))
+       
+       ;; Check if overlap is valid
+       (unless (date-before? (string->date overlap-from) (string->date overlap-to))
+         (raise-syntax-error 'compose-strategies 
+                           (format "Strategies have non-overlapping periods: ~a to ~a and ~a to ~a"
+                                   s1-from s1-to s2-from s2-to)
+                           stx))
+       
+       #'(lambda (date)
+           (let* ([s1-result (strat1 date)]
+                  [s2-result (strat2 date)]
+                  [combined (compose-strategy-results s1-result s2-result w1 w2)])
+             combined)))]
+    ;; Handle non-identifier or expression strategies
     [(_ strat1:expr strat2:expr 
         (~optional (~seq #:weights (w1:number w2:number)) 
                    #:defaults ([w1 0.5] [w2 0.5])))
