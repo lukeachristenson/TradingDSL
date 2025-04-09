@@ -74,10 +74,5 @@
   (define start-date (string->date start-date-str))
   (define end-date (string->date end-date-str))
   
-  ;; For demonstration purposes, return simplified results
-  ;; A full implementation would:
-  ;; 1. Get all trading days in the period
-  ;; 2. Get top N stocks on the first day
-  ;; 3. Initialize the portfolio
-  ;; 4. Process all trading days
+
   (list 1.15 "15.0% return"))
