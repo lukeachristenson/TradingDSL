@@ -1,0 +1,39 @@
+►		Hack Your Own Language
+▼		Assignments
+1 	Research a DSL
+2 	Embedded DSLs A
+3 	Embedded DSLs B
+4 	Project idea meeting
+5 	Simple Macros
+6 	Match
+7 	Project design presentation and write-up
+8 	syntax-spec DSLs A
+9 	Project Syntax Implementation Code Walk
+10 	Final Project Presentation and Code Walk
+8.14    ← prev  up  next → 
+10 Final Project Presentation and Code Walk
+Dates: April 3, 7, 9, and 10.
+
+We will spend 20 minutes in class on each pair’s project. We will evaluate your presentation based on the following expectations:
+
+Focused domain overview Briefly remind us of the purpose of your DSL, and explain the concepts in the domain for non-experts.
+
+2 minute demo Demonstrate the functionality, and discuss the benefits of your DSL’s syntax over a conventional API.
+
+Example input / output pair Illustrate your compilation via an example program in your DSL syntax, and its compilation to Racket and the DSL’s runtime support.
+
+Grammar Generalize from your example and present the grammar of your DSL.
+
+Realization of the grammar by syntax-parse, syntax-spec Explain any shortcomings of syntax-parse or syntax-spec you encountered when realizing your intended grammar.
+
+The compiler As in any code walk, start with an overview of the code organization (a README explaining the purpose of each file in your implementation would be a great place to start).
+
+Tests Illustrate what kind of mistakes your tests have discovered.
+
+For each part, focus on what is new since last we saw your project while still providing the context of the overall implementation.
+
+Remember the roles in presentations: For each half of the presentation, one person will be presenting while the other navigates and takes notes. Only the presenter should talk during their portion. The navigator and notetaker should have a notebook to record feedback in without disrupting the presentation. I will choose which partner presents which of the parts above, so both partners should be prepared to present any portion.
+
+If your presentation reveals that your project is insufficiently complete, we will expect you to demonstrate a complete version during finals week.
+
+See Piazza for the schedule of presentations.

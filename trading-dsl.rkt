@@ -1,23 +1,25 @@
 #lang racket
 
 ;; Trading Strategy DSL - Core definitions
+;; This file provides the core DSL syntax and semantics for defining and testing trading strategies
 
 (require (for-syntax syntax/parse))
 (require "./racket-code/data-new.rkt")
 (require "./racket-code/strat.rkt")
+(require "./racket-code/backtest.rkt")
 (require syntax-spec-v3
          (for-syntax syntax/parse racket/list "./racket-code/data-new.rkt"))
 
 ;; Provide all DSL definitions
-(provide define/strategy
-         define/combined-strategy
-         compose-strategies
-         backtest
+(provide define/strategy         ; Define a strategy with an active period
+         define/combined-strategy ; Combine two strategies with a switchover date
+         compose-strategies      ; Compose strategies with weights
+         backtest                ; Backtest a strategy over a time period
          ;; Re-provide existing strategy functions
-         top-performer
-         reduced-date
+         top-performer           ; Strategy for selecting top performing stocks
+         reduced-date            ; Date constructor
          ;; Constants
-         1y 6m 3m 1m 2w 1w 5d 1d) 
+         1y 6m 3m 1m 2w 1w 5d 1d) ; Time period constants
 
 ;; Define time period constants (in days)
 (define 1y 365) 
@@ -33,18 +35,25 @@
 ;; Syntax-spec macros
 ;; -------------------------------------
 (begin-for-syntax
-  ;Syntax -> (Maybe Error)
+  ;; Syntax -> (Maybe Error)
+  ;; Check if start date is before end date, raise error if not
   (define (check-valid-interval! start-date end-date expr)
     (unless (date-before? (string->date start-date) (string->date end-date))
       (raise-syntax-error 'invalid-period "Invalid date range provided: end date is before start date" expr)))
 
+  ;; Structure to represent a strategy's active period
   (struct period [from to] #:prefab)
+  
+  ;; Symbol table to store strategy periods
   (define-persistent-symbol-table periods)
 
-
+  ;; Symbol Syntax Syntax -> Void
+  ;; Store a strategy's active period in the symbol table
   (define (store-period! strat-name from to)
     (symbol-table-set! periods strat-name #`#,(period from to)))
 
+  ;; Symbol String String -> Void
+  ;; Check if a backtest period is within a strategy's active period
   (define (check-valid-backtest-period! strat-name from to)
     (unless (and (not (date-before? (string->date (period-to (get-period strat-name)))
                                     (string->date to)))
@@ -52,20 +61,28 @@
                                     (string->date (period-from (get-period strat-name))))))
       (raise-syntax-error #f "Invalid backtest period: can only backtest during strategy active period" strat-name)))
 
+  ;; Symbol Symbol Syntax -> Void
+  ;; Check if two strategies can be combined (periods must overlap)
   (define (check-combinable! s1 s2 expr)
     (let ([to-s1 (string->date (get-period-to s1))]
           [from-s2 (string->date (get-period-from s2))])
       (unless (not (date-before? to-s1 from-s2))
         (raise-syntax-error #f "Uncombinable periods: strat1 is inactive before strat2 is active" expr))))
 
+  ;; Symbol -> Period
+  ;; Get a strategy's active period from the symbol table
   (define (get-period strat-name) 
     (syntax->datum 
      (symbol-table-ref periods strat-name
                        (lambda () (raise-syntax-error #f "No active trading period found" strat-name)))))
 
+  ;; Symbol -> String
+  ;; Get a strategy's start date
   (define (get-period-from strat-name)
     (period-from (get-period strat-name)))
 
+  ;; Symbol -> String
+  ;; Get a strategy's end date
   (define (get-period-to strat-name)
     (period-to (get-period strat-name))))
  
@@ -75,6 +92,7 @@
                  #:description "trading strategy"
                  #:reference-compiler mutable-reference-compiler)
   
+  ;; define/strategy - Define a strategy with its active period
   (host-interface/definitions
    (define/strategy id:strategy expr:racket-expr #:from from-date:string #:to to-date:string)
    #:binding (export id)
@@ -86,6 +104,7 @@
                   (attribute to-date))
    #'(define id expr)) 
 
+  ;; define/combined-strategy - Combine two strategies with a switchover date
   (host-interface/definitions
    (define/combined-strategy new:strategy s1:strategy s2:strategy #:mid mid-date:string)
    #:binding (export new)
@@ -100,6 +119,7 @@
                                     (s1 date) 
                                     (s2 date)))))
 
+  ;; backtest - Run a backtest on a strategy over a specific period
   (host-interface/expression
    (backtest s:strategy start-date:string end-date:string n-val:racket-expr)
    (check-valid-interval!
@@ -111,19 +131,15 @@
    #'(run-backtest s
                    start-date
                    end-date
-                   n-val))
-
-  #;(host-interface/expression
-   (compose strat1:expr strat2:expr 
-        (~optional (~seq #:weights (w1:number w2:number)) 
-                   #:defaults ([w1 0.5] [w2 0.5])))
-   #'(run-backtest s start-date end-date n-val))) 
+                   n-val)))
 
 ;; -------------------------------------
 ;; Strategy Composition Macro
 ;; -------------------------------------
 
 ;; Compose two strategies with optional weights
+;; (compose-strategies strat1 strat2 #:weights (w1 w2))
+;; If weights are not provided, defaults to 50/50 split
 (define-syntax (compose-strategies stx)
   (syntax-parse stx
     [(_ strat1:expr strat2:expr 
@@ -133,94 +149,26 @@
          (let* ([s1-result (strat1 date)]
                 [s2-result (strat2 date)]
                 [combined (compose-strategy-results s1-result s2-result w1 w2)])
-           combined))])) 
+           combined))]))
 
+;; (listof TickerWeight) (listof TickerWeight) Number Number -> (listof TickerWeight)
 ;; Helper function to combine strategy results
+;; Takes results from two strategies and weights them according to the provided weights
 (define (compose-strategy-results results1 results2 weight1 weight2)
+  ;; Get all unique tickers from both strategies
   (define all-tickers (remove-duplicates 
                        (append (map ticker-weight-ticker results1)
                                (map ticker-weight-ticker results2))))
   
+  ;; Get the weight for a ticker in a specific set of results
   (define (get-weight ticker results)
     (define found (findf (lambda (tw) (string=? (ticker-weight-ticker tw) ticker)) results))
     (if found (ticker-weight-weight found) 0))
   
+  ;; For each ticker, calculate its weighted value
   (for/list ([ticker all-tickers])
     (define weight1-val (get-weight ticker results1))
     (define weight2-val (get-weight ticker results2))
     (define composed-weight (+ (* weight1 weight1-val)
                                (* weight2 weight2-val)))
     (ticker-weight ticker composed-weight)))
-
-;; -------------------------------------
-;; Backtesting Macro
-;; -------------------------------------
-
-
-
-#|
-;; Backtest a strategy over time
-(define-syntax (backtest stx)
-  (syntax-parse stx
-    [(_ strategy-expr:expr 
-        #:from start-date:expr 
-        #:to end-date:expr
-        (~optional (~seq #:top-n n-val:expr) #:defaults ([n-val 10])))
-     #'(run-backtest strategy-expr start-date end-date n-val)]))
-|#
-
-
-;; Backtesting implementation
-(define (run-backtest strategy start-date-str end-date-str top-n)
-  (define start-date (string->date start-date-str))
-  (define end-date (string->date end-date-str))
-  (define trading-days (active-trading-days start-date end-date))
-  
-  (unless (pair? trading-days)
-    (error "Backtest period contains no trading days"))
-  
-  (define first-day (car trading-days))
-  ;; Get top N stocks from strategy
-  (define top-stocks 
-    (take (sort (strategy first-day)
-                (lambda (a b) (> (ticker-weight-weight a)
-                                 (ticker-weight-weight b))))
-          (min top-n (length (strategy first-day)))))
-  
-  ;; Start with initial portfolio
-  (define initial-ticker (ticker-weight-ticker (first top-stocks)))
-  (define initial-price (stock-data-close (get-stock-data initial-ticker first-day)))
-  
-  ;; Calculate performance for each trading day
-  (let loop ([days (cdr trading-days)]
-             [current-ticker initial-ticker]
-             [buy-price initial-price]
-             [cumulative-return 1.0])
-    (if (null? days)
-        ;; Return final results
-        (list cumulative-return
-              (format "~a% return" (* 100 (- cumulative-return 1))))
-        ;; Process next day
-        (let* ([day (car days)]
-               [sell-price (stock-data-close (get-stock-data current-ticker day))]
-               [day-return (/ sell-price buy-price)]
-               ;; Get new top stock for rebalancing
-               [new-top-stock (first (take (sort (strategy day)
-                                                (lambda (a b) (> (ticker-weight-weight a)
-                                                                 (ticker-weight-weight b))))
-                                          (min top-n (length (strategy day)))))]
-               [new-ticker (ticker-weight-ticker new-top-stock)]
-               [new-price (stock-data-close (get-stock-data new-ticker day))])
-          (loop (cdr days)
-                new-ticker
-                new-price 
-                (* cumulative-return day-return)))))) 
- 
-(define (active-trading-days start-date end-date)
-  (cond
-    [(date-before? end-date start-date) '()]
-    [else (cons start-date
-                (active-trading-days (next-trading-day
-                                      (add-days start-date 1))
-                                     end-date))]))
-

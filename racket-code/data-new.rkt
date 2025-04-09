@@ -15,27 +15,22 @@
 ;;                         ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;; A Datapoint is a (stockdata Number Number)
-(define-struct stock-data (open close)) ;for a single ticker on a given date
-
+;; A StockData is a (stock-data Number Number)
+;; Represents open and close prices for a single ticker on a given date
+(define-struct stock-data (open close) #:transparent)
 
 ;; A DataKey is a (key Ticker Date)
-(define-struct key
-  (ticker date)
-  #:transparent)
+;; Used as a key in the data hash table
+(define-struct key (ticker date) #:transparent)
   
-
-;; A Ticker is one of
-;; A,AAPL,ABBV,ABNB,ABT,ACGL,ACN,ADBE,ADI,ADM,ADP,ADSK,AEE,AEP,AES,AFL,AIG,AIZ,AJG,AKAM,ALB,ALGN,ALL,ALLE,AMAT,AMCR,AMD,AME,AMGN,AMP,AMT,AMTM,AMZN,ANET,ANSS,AON,AOS,APA,APD,APH,APTV,ARE,ATO,AVB,AVGO,AVY,AWK,AXON,AXP,AZO,BA,BAC,BALL,BAX,BBY,BDX,BEN,BF-B,BG,BIIB,BK,BKNG,BKR,BLDR,BLK,BMY,BR,BRK-B,BRO,BSX,BWA,BX,BXP,C,CAG,CAH,CARR,CAT,CB,CBOE,CBRE,CCI,CCL,CDNS,CDW,CE,CEG,CF,CFG,CHD,CHRW,CHTR,CI,CINF,CL,CLX,CMCSA,CME,CMG,CMI,CMS,CNC,CNP,COF,COO,COP,COR,COST,CPAY,CPB,CPRT,CPT,CRL,CRM,CRWD,CSCO,CSGP,CSX,CTAS,CTLT,CTRA,CTSH,CTVA,CVS,CVX,CZR,D,DAL,DAY,DD,DE,DECK,DELL,DFS,DG,DGX,DHI,DHR,DIS,DLR,DLTR,DOC,DOV,DOW,DPZ,DRI,DTE,DUK,DVA,DVN,DXCM,EA,EBAY,ECL,ED,EFX,EG,EIX,EL,ELV,EMN,EMR,ENPH,EOG,EPAM,EQIX,EQR,EQT,ERIE,ES,ESS,ETN,ETR,EVRG,EW,EXC,EXPD,EXPE,EXR,F,FANG,FAST,FCX,FDS,FDX,FE,FFIV,FI,FICO,FIS,FITB,FMC,FOX,FOXA,FRT,FSLR,FTNT,FTV,GD,GDDY,GE,GEHC,GEN,GEV,GILD,GIS,GL,GLW,GM,GNRC,GOOG,GOOGL,GPC,GPN,GRMN,GS,GWW,HAL,HAS,HBAN,HCA,HD,HES,HIG,HII,HLT,HOLX,HON,HPE,HPQ,HRL,HSIC,HST,HSY,HUBB,HUM,HWM,IBM,ICE,IDXX,IEX,IFF,INCY,INTC,INTU,INVH,IP,IPG,IQV,IR,IRM,ISRG,IT,ITW,IVZ,J,JBHT,JBL,JCI,JKHY,JNJ,JNPR,JPM,K,KDP,KEY,KEYS,KHC,KIM,KKR,KLAC,KMB,KMI,KMX,KO,KR,KVUE,L,LDOS,LEN,LH,LHX,LIN,LKQ,LLY,LMT,LNT,LOW,LRCX,LULU,LUV,LVS,LW,LYB,LYV,MA,MAA,MAR,MAS,MCD,MCHP,MCK,MCO,MDLZ,MDT,MET,META,MGM,MHK,MKC,MKTX,MLM,MMC,MMM,MNST,MO,MOH,MOS,MPC,MPWR,MRK,MRNA,MS,MSCI,MSFT,MSI,MTB,MTCH,MTD,MU,NCLH,NDAQ,NDSN,NEE,NEM,NFLX,NI,NKE,NOC,NOW,NRG,NSC,NTAP,NTRS,NUE,NVDA,NVR,NWS,NWSA,NXPI,O,ODFL,OKE,OMC,ON,ORCL,ORLY,OTIS,OXY,PANW,PARA,PAYC,PAYX,PCAR,PCG,PEG,PEP,PFE,PFG,PG,PGR,PH,PHM,PKG,PLD,PLTR,PM,PNC,PNR,PNW,PODD,POOL,PPG,PPL,PRU,PSA,PSX,PTC,PWR,PYPL,QCOM,QRVO,RCL,REG,REGN,RF,RJF,RL,RMD,ROK,ROL,ROP,ROST,RSG,RTX,RVTY,SBAC,SBUX,SCHW,SHW,SJM,SLB,SMCI,SNA,SNPS,SO,SOLV,SPG,SPGI,SRE,STE,STLD,STT,STX,STZ,SW,SWK,SWKS,SYF,SYK,SYY,T,TAP,TDG,TDY,TECH,TEL,TER,TFC,TFX,TGT,TJX,TMO,TMUS,TPL,TPR,TRGP,TRMB,TROW,TRV,TSCO,TSLA,TSN,TT,TTWO,TXN,TXT,TYL,UAL,UBER,UDR,UHS,ULTA,UNH,UNP,UPS,URI,USB,V,VICI,VLO,VLTO,VMC,VRSK,VRSN,VRTX,VST,VTR,VTRS,VZ,WAB,WAT,WBA,WBD,WDC,WEC,WELL,WFC,WM,WMB,WMT,WRB,WST,WTW,WY,WYNN,XEL,XOM,XYL,YUM,ZBH,ZBRA,ZTS
-;;(Note: no quotes above, but they are strings in the data)
-
-;; A Date is (reduced-date Number Number Number)
+;; A Ticker is a String representing a stock symbol
+;; A Date is a (reduced-date Number Number Number)
+;; Representing year, month, day
 (define-struct reduced-date (year month day) #:transparent)
 
 
-; String -> Date
-; Parse a date string and return a date struct
+;; String -> Date
+;; Parse a date string in YYYY-MM-DD format and return a date struct
 (define (string->date str)
   (match (regexp-match #px"^(\\d{4})-(\\d{2})-(\\d{2})$" str)
     [(list _ year month day)
@@ -44,14 +39,8 @@
                    (string->number day))]
     [_ (error "Invalid date format. Expected YYYY-MM-DD.")]))
 
-
-(check-equal? (string->date "2024-01-02") (reduced-date 2024 01 02))
-(check-equal? (string->date "2025-03-18") (reduced-date 2025 03 18))
-
-
-
-; String -> Date
-; Parse a date string and return a date struct
+;; Date -> String
+;; Convert a date struct to a string in YYYY-M-D format
 (define (date->string date)
   (string-append
    (number->string (reduced-date-year date))
@@ -60,68 +49,65 @@
    "-"
    (number->string (reduced-date-day date))))
 
-
-
+;; Test cases for date conversion
 (check-equal? (string->date "2024-01-02") (reduced-date 2024 01 02))
 (check-equal? (string->date "2025-03-18") (reduced-date 2025 03 18))
 (check-equal? (date->string (reduced-date 2024 01 02)) "2024-1-2")
 (check-equal? (date->string (reduced-date 2025 03 18)) "2025-3-18")
 
-;; Convert a date struct to a racket date object
+;; Date -> RacketDate
+;; Convert our date struct to a Racket date object
 (define (date->racket-date d)
   (seconds->date (find-seconds 0 0 0 
                                (reduced-date-day d)
                                (reduced-date-month d)
                                (reduced-date-year d))))
 
-
-(check-equal? (date->racket-date (string->date "2024-01-02"))
-              (date* 0 0 0 2 1 2024 2 1 #f -18000 0 "EST"))
-
-
-;; Convert a racket date object back to our date struct
+;; RacketDate -> Date
+;; Convert a Racket date object back to our date struct
 (define (racket-date->date d)
   (make-reduced-date (date-year d) (date-month d) (date-day d)))
 
+;; Test cases for Racket date conversion
+(check-equal? (date->racket-date (string->date "2024-01-02"))
+              (date* 0 0 0 2 1 2024 2 1 #f -18000 0 "EST"))
 (check-equal? (racket-date->date
                (date* 0 0 0 2 1 2024 2 1 #f -18000 0 "EST"))
               (reduced-date 2024 1 2))
 
-;;Adds n days to a given date struct
+;; Date Number -> Date
+;; Add n days to a given date struct
 (define (add-days d n)
   (racket-date->date (seconds->date (+ (date->seconds (date->racket-date d))
                                        (* n 90000)))))
 
-;Subtracts n days from given date struct
+;; Date Number -> Date
+;; Subtract n days from a given date struct
 (define (sub-days d n)
   (racket-date->date (seconds->date (- (date->seconds (date->racket-date d))
                                        (* n 90000)))))
 
-
-;(define d (reduced-date 2024 01 01)) 
-;(check-equal? (add-days d 365) (reduced-date 2024 12 31))
-
-
-; Date Date -> Boolean
-; If the first date is before the second
+;; Date Date -> Boolean
+;; Return true if the first date is before the second
 (define (date-before? d1 d2)
   (< (date->seconds (date->racket-date d1))
      (date->seconds (date->racket-date d2))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                         ;;
 ;;      LOADING DATA       ;;
 ;;                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Data is a (Map DataKey DataPoint)
-(require csv-reading)
-
-;; Path -> Table
+;; String -> Hash
+;; Load a CSV file and convert it to a hash table
 (define (load-table path)
   (with-input-from-file path
     (lambda () (csv-list->table (csv->list (current-input-port))))))
 
-
+;; (listof (listof String)) -> Hash
+;; Convert a list of CSV rows to a hash table
+;; Keys are (key ticker date), values are (stock-data open close)
 (define (csv-list->table lst)
   (define column-names (first lst))
   (define row-lists (rest lst))
@@ -131,26 +117,32 @@
             (stock-data (string->number (third row-list))
                         (string->number (fourth row-list)))))) 
 
-
+;; The main stock data hash table
+;; Maps (key ticker date) -> (stock-data open close)
 (define STOCK-DATA (load-table "./data/1y50-data/pricedata-1y-with-metrics.csv"))
 
-
+;; String Date -> StockData
+;; Get stock data for a ticker on a specific date
 (define (get-stock-data ticker dt)  
   (hash-ref STOCK-DATA (key ticker dt))) 
 
+;; String Date -> Boolean
+;; Check if we have valid stock data for a ticker on a specific date
 (define (has-stock-data ticker dt)
   (define data (get-stock-data ticker dt))
   (not (= (stock-data-close data) -1)))
 
+;; Date -> Boolean
+;; Check if a date is a weekend or holiday (no trading)
 (define (is-weekend-or-holiday dt)
   (with-handlers ([exn:fail?
                    (λ (e) #t)])
     (get-stock-data "AAPL" dt)
     #f))
 
+;; Date -> Date
+;; Get the next valid trading day (skip weekends and holidays)
 (define (next-trading-day dt)
   (if (is-weekend-or-holiday dt)
       (next-trading-day (add-days dt 1))
-      dt)) 
-
-;(next-trading-day (reduced-date 2024 11 2))
+      dt))
