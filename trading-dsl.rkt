@@ -214,7 +214,7 @@
           (loop (cdr days)
                 new-ticker
                 new-price 
-                (* cumulative-return day-return))))))
+                (* cumulative-return day-return)))))) 
  
 (define (active-trading-days start-date end-date)
   (cond
