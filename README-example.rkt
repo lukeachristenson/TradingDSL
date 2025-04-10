@@ -69,4 +69,14 @@
   (reduced-date 2024 1 16)
   5)
 
+;; 9. Show detailed allocation differences between strategies
+(displayln "")
+(display-allocation-difference
+  annual-momentum
+  weighted-strategy
+  "Annual"
+  "Weighted"
+  (reduced-date 2024 1 16)
+  3)
+
 (displayln "\n=== Example Completed Successfully ===\n")

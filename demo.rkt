@@ -99,6 +99,16 @@
   (reduced-date 2024 1 16)
   5)
 
+;; Display detailed allocation differences
+(displayln "\nDetailed Allocation Differences:")
+(display-allocation-difference
+  annual-momentum 
+  monthly-momentum
+  "Annual Momentum"
+  "Monthly Momentum"
+  (reduced-date 2024 1 16)
+  3)
+
 ;; =================================================
 ;; 6. Error Handling
 ;; =================================================

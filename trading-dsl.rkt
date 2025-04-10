@@ -17,9 +17,13 @@
          ;; existing strategy functions
          top-performer
          reduced-date
+         ticker-weight
+         ticker-weight-ticker
+         ticker-weight-weight
          ;; result functions
          display-strategy-allocation
          display-strategy-comparison
+         display-allocation-difference
          ;; time constants
          1y 6m 3m 1m 2w 1w 5d 1d)
 
