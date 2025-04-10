@@ -17,7 +17,7 @@
   biannual-momentum 
    #:mid "2024-06-03") 
 
-;; Define a combined strategy (70% annual, 30% biannual)
+;; Define a composed strategy (70% annual, 30% biannual)
 (define/strategy composed-strategy
   (compose-strategies annual-momentum biannual-momentum
                      #:weights (0.7 0.3))

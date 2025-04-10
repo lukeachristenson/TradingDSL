@@ -41,7 +41,7 @@
   #:mid "2024-06-03")  ;; Switchover date
 
 ;; =================================================
-;; 3. Demonstrate Weighted Strategy Composition
+;; 3. Demonstrate Weighted Strategy Composition 
 ;; =================================================
 (displayln "\n=== Weighted Strategy Compositions ===")
 
@@ -131,7 +131,7 @@
   (compose-strategies strategy-a strategy-b)
   #:from "2024-01-05"
   #:to "2024-06-05")
-
+ 
 ;; This would fail with a compile-time error:
 ;; Backtesting outside strategy's active period
 (backtest annual-momentum
@@ -139,5 +139,3 @@
           "2024-02-05"
           5)
 |#
-
-(displayln "\nDemo completed successfully!")
