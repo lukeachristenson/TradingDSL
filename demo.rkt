@@ -136,3 +136,29 @@
           "2024-02-05"
           5)
 |#
+
+
+#| DSL GRAMMAR
+
+<strategy-definition> ::= (define/strategy ID STRATEGY-EXPR
+                            #:from DATE-STRING
+                            #:to DATE-STRING)
+
+<combined-strategy> ::= (define/combined-strategy ID 
+                           STRATEGY-ID
+                           STRATEGY-ID
+                           #:mid DATE-STRING)
+
+<backtest> ::= (backtest STRATEGY-ID
+                         DATE-STRING
+                         DATE-STRING
+                         TOP-N)
+
+<strategy-expr> ::= (top-performer #:period PERIOD)
+                  | (compose-strategies STRATEGY-EXPR STRATEGY-EXPR
+                     [#:weights (NUMBER NUMBER)])
+
+<period> ::= 1y | 6m | 3m | 1m | 2w | 1w | 5d | 1d
+
+
+|#
