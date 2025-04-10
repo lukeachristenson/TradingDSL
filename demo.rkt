@@ -92,22 +92,47 @@
 (display-strategy-allocation annual-momentum (reduced-date 2024 1 16) 10)
 
 ;; Compare strategies 
-(displayln "\nStrategy Comparison:")
+(displayln "\nOptimized Strategy:")
 (display-strategy-comparison 
   (list annual-momentum weighted-long-term monthly-momentum short-term-momentum)
   (list "Annual" "Weighted Long-Term" "Monthly" "Short-Term")
   (reduced-date 2024 1 16)
   5)
 
-;; Display detailed allocation differences
-(displayln "\nDetailed Allocation Differences:")
+(define (tech-heavy date)
+  (list (ticker-weight "NVDA" 2.5)
+        (ticker-weight "MSFT" 1.8)
+        (ticker-weight "AAPL" 1.6)
+        (ticker-weight "GOOGL" 1.4)
+        (ticker-weight "AMZN" 1.2)
+        (ticker-weight "META" 0.8)
+        (ticker-weight "TSLA" 0.6)))
+
+(define (value-focused date)
+  (list (ticker-weight "META" 2.2)
+        (ticker-weight "AMZN" 1.9)
+        (ticker-weight "MSFT" 1.5)
+        (ticker-weight "AAPL" 1.3)
+        (ticker-weight "TSLA" 1.1)
+        (ticker-weight "GOOGL" 0.9)
+        (ticker-weight "NVDA" 0.7)))
+
+(define/strategy tech-strategy tech-heavy
+  #:from "2024-01-05"
+  #:to "2024-12-20")
+
+(define/strategy value-strategy value-focused
+  #:from "2024-01-05"
+  #:to "2024-12-20")
+
+(displayln "\n Allocation Differences:")
 (display-allocation-difference
-  annual-momentum 
-  monthly-momentum
-  "Annual Momentum"
-  "Monthly Momentum"
+  tech-strategy 
+  value-strategy
+  "Tech Strategy"
+  "Value Strategy"
   (reduced-date 2024 1 16)
-  3)
+  5)
 
 ;; =================================================
 ;; 6. Error Handling

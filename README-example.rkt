@@ -69,14 +69,40 @@
   (reduced-date 2024 1 16)
   5)
 
-;; 9. Show detailed allocation differences between strategies
-(displayln "")
+;; 9. Create contrasting strategies for better comparison
+(displayln "\nCreating contrasting tech and value strategies...")
+
+;; Define strategies with different preferences
+(define (tech-heavy date)
+  (list (ticker-weight "NVDA" 2.5)
+        (ticker-weight "MSFT" 1.8)
+        (ticker-weight "AAPL" 1.6)
+        (ticker-weight "GOOGL" 1.4)
+        (ticker-weight "AMZN" 1.2)))
+
+(define (value-focused date)
+  (list (ticker-weight "META" 2.2)
+        (ticker-weight "AMZN" 1.9)
+        (ticker-weight "MSFT" 1.5)
+        (ticker-weight "AAPL" 1.3)
+        (ticker-weight "TSLA" 1.1)))
+
+(define/strategy tech-strategy tech-heavy
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+(define/strategy value-strategy value-focused
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+;; Show detailed allocation differences
+(displayln "\nDetailed allocation differences between Tech and Value strategies:")
 (display-allocation-difference
-  annual-momentum
-  weighted-strategy
-  "Annual"
-  "Weighted"
+  tech-strategy
+  value-strategy
+  "Tech"
+  "Value"
   (reduced-date 2024 1 16)
-  3)
+  5)
 
 (displayln "\n=== Example Completed Successfully ===\n")
