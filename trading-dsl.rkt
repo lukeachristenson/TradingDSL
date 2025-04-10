@@ -134,6 +134,35 @@
                    end-date
                    n-val)))
 
+
+;;EXAMPLE EXPANSIONS: 
+
+
+#;(define/combined-strategy seasonal-strategy
+  annual-momentum      ;; Use annual momentum strategy initially
+  biannual-momentum    ;; Switch to biannual momentum at the midpoint
+  #:mid "2024-06-03")
+
+;; Expands to  =>
+
+#;(define seasonal-strategy (lambda (date)
+                              (if (date-before? date (string->date "2024-06-03"))
+                                    (s1 date) 
+                                    (s2 date))))
+
+
+
+#;(compose-strategies monthly-momentum short-term-momentum
+                     #:weights (0.3 0.7))
+
+;; Expands to =>
+
+#;#'(lambda (date)
+      (let* ([s1-result (monthly-momentum date)]
+             [s2-result (short-term-momentum date)]
+             [combined (compose-strategy-results s1-result s2-result 0.3 0.7)])
+        combined))
+
 ;; -------------------------------------
 ;; Strategy Composition Macro
 ;; -------------------------------------

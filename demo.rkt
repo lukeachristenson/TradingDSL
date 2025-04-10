@@ -36,6 +36,8 @@
   biannual-momentum    ;; Switch to biannual
   #:mid "2024-06-03")  ;; Switch date
 
+
+
 ;; =================================================
 ;; 3. Demonstrate Weighted Strategy Composition 
 ;; =================================================
@@ -89,7 +91,7 @@
 (displayln "\nPortfolio Allocation for Annual Momentum Strategy:")
 (display-strategy-allocation annual-momentum (reduced-date 2024 1 16) 10)
 
-;; Compare strategies
+;; Compare strategies 
 (displayln "\nStrategy Comparison:")
 (display-strategy-comparison 
   (list annual-momentum weighted-long-term monthly-momentum short-term-momentum)
