@@ -1,7 +1,6 @@
 #lang racket
 
 ;; Trading Strategy DSL - Core definitions
-;; This file provides the core DSL syntax and semantics for defining and testing trading strategies
 
 (require (for-syntax syntax/parse))
 (require "./racket-code/data-new.rkt")
@@ -11,21 +10,19 @@
 (require syntax-spec-v3
          (for-syntax syntax/parse racket/list "./racket-code/data-new.rkt"))
 
-;; Provide all DSL definitions
 (provide define/strategy
          define/combined-strategy
          compose-strategies
          backtest
-         ;; Re-provide existing strategy functions
+         ;; existing strategy functions
          top-performer
          reduced-date
-         ;; Display functions
+         ;; result functions
          display-strategy-allocation
          display-strategy-comparison
-         ;; Constants
+         ;; time constants
          1y 6m 3m 1m 2w 1w 5d 1d)
 
-;; Define time period constants (in days)
 (define 1y 365) 
 (define 6m 182)
 (define 3m 90)

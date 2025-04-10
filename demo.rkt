@@ -1,12 +1,9 @@
 #lang racket
 
-;; Trading DSL Complete Demo
-;; This file demonstrates all features of the Trading DSL
-
 (require "trading-dsl.rkt")
 
 ;; =================================================
-;; 1. Define Individual Strategies
+;; 1. Individual Strategies
 ;; =================================================
 
 ;; Annual momentum strategy (top performers over 1 year)
@@ -30,29 +27,27 @@
   #:to "2024-12-20")
 
 ;; =================================================
-;; 2. Demonstrate Time-Based Strategy Combination
+;; 2. Time-Based Strategy Combination
 ;; =================================================
-(displayln "\n=== Combined Strategies (Time-Based) ===")
 
 ;; Combined strategy with mid-point switchover
 (define/combined-strategy seasonal-strategy
-  annual-momentum      ;; Use annual momentum strategy initially
-  biannual-momentum    ;; Switch to biannual momentum at the midpoint
-  #:mid "2024-06-03")  ;; Switchover date
+  annual-momentum      ;; Start with annual
+  biannual-momentum    ;; Switch to biannual
+  #:mid "2024-06-03")  ;; Switch date
 
 ;; =================================================
-;; 3. Demonstrate Weighted Strategy Composition
+;; 3. Weighted Strategy Composition
 ;; =================================================
-(displayln "\n=== Weighted Strategy Compositions ===")
 
-;; Compose strategies with explicit weights (70% annual, 30% biannual)
+;; Compose strategies with weights
 (define/strategy weighted-long-term
   (compose-strategies annual-momentum biannual-momentum
                      #:weights (0.7 0.3))
   #:from "2024-01-05"
   #:to "2024-06-05")
 
-;; Compose strategies with different weights (30% monthly, 70% short-term)
+;; Compose strategies with different weights
 (define/strategy weighted-short-term
   (compose-strategies monthly-momentum short-term-momentum
                      #:weights (0.3 0.7))
@@ -60,7 +55,7 @@
   #:to "2024-12-20")
 
 ;; =================================================
-;; 4. Demonstrate Backtesting
+;; 4. Backtesting
 ;; =================================================
 (displayln "\n=== Backtesting Results ===")
 
@@ -86,7 +81,7 @@
                      5))
 
 ;; =================================================
-;; 5. Demonstrate Strategy Display
+;; 5. Strategy Display
 ;; =================================================
 (displayln "\n=== Strategy Analysis ===")
 
@@ -103,7 +98,7 @@
   5)
 
 ;; =================================================
-;; 6. Demonstrate Error Handling (Commented Out)
+;; 6. Error Handling (Commented Out)
 ;; =================================================
 
 #|
@@ -139,5 +134,3 @@
           "2024-02-05"
           5)
 |#
-
-(displayln "\nDemo completed successfully!")
