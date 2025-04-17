@@ -27,3 +27,13 @@ Temporary Items
 data/.DS_Store
 *.rkt~
 \#demo.rkt\#1\#
+
+# Project-specific files to ignore
+copy_files_to_clipboard.sh
+instructions.txt
+personal-instructions.txt
+
+# Scribble documentation generated files
+scribblings/*.html
+scribblings/*.js
+scribblings/*.css
