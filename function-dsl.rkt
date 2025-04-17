@@ -4,10 +4,10 @@
 ;; An alternative implementation that uses functions with optional keyword arguments
 ;; instead of macros for the trading DSL.
 
-(require "./racket-code/data-new.rkt")
-(require "./racket-code/strat.rkt")
-(require "./racket-code/backtest.rkt")
-(require "./racket-code/visualization.rkt")
+(require "./private/racket-code/data-new.rkt")
+(require "./private/racket-code/strat.rkt")
+(require "./private/racket-code/backtest.rkt")
+(require "./private/racket-code/visualization.rkt")
 
 (provide 
  ;; Function-based strategy definitions
