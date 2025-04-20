@@ -37,3 +37,12 @@ personal-instructions.txt
 scribblings/*.html
 scribblings/*.js
 scribblings/*.css
+/compiled
+/design/compiled
+.DS_Store
+*.css
+/private/racket-code/compiled
+/racket-code/compiled
+/tests/compiled
+*.js
+.DS_Store
