@@ -5,7 +5,7 @@
 ;; instead of macros for the trading DSL.
 
 
-(require "data-new.rkt" "strat.rkt" "backtest.rkt")
+(require "private/data-new.rkt" "private/strat.rkt" "private/backtest.rkt")
 (provide 
  ;; Function-based strategy definitions
  strategy

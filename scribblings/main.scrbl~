@@ -1,8 +1,6 @@
 #lang scribble/manual
 
-@(require
-   scribble/example
-   (for-label racket trading-dsl))
+@(require (for-label racket trading-dsl))
 
 @title{TradingDSL: A Domain-Specific Language for Trading Strategy Development}
 

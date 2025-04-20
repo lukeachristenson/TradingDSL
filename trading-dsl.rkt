@@ -3,12 +3,12 @@
 ;; Trading Strategy DSL - Core definitions
 
 (require (for-syntax syntax/parse))
-(require "./data-new.rkt")
-(require "./strat.rkt")
-(require "./backtest.rkt")
-(require "./visualization.rkt")
+(require "private/data-new.rkt")
+(require "private/strat.rkt")
+(require "private/backtest.rkt")
+(require "private/visualization.rkt")
 (require syntax-spec-v3
-         (for-syntax syntax/parse racket/list "./data-new.rkt"))
+         (for-syntax syntax/parse racket/list "private/data-new.rkt"))
 
 (provide define/strategy
          define/combined-strategy
