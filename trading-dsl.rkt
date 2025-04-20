@@ -68,11 +68,15 @@
 
   ;; Symbol Symbol Syntax -> Void
   ;; Check if two strategies can be combined (periods must overlap)
-  (define (check-combinable! s1 s2 expr)
+  (define (check-combinable! s1 s2 mid-date expr)
     (let ([to-s1 (string->date (get-period-to s1))]
           [from-s2 (string->date (get-period-from s2))])
       (unless (not (date-before? to-s1 from-s2))
-        (raise-syntax-error #f "Uncombinable periods: strat1 is inactive before strat2 is active" expr))))
+        (raise-syntax-error #f "Uncombinable periods: strat1 is inactive before strat2 is active" expr))
+
+      (unless (and (date-before? (string->date mid-date) to-s1)
+                   (date-before? from-s2 (string->date mid-date)))
+        (raise-syntax-error #f "Mid-date not in interval overlap" expr))))
 
   ;; Symbol -> Period
   ;; Get a strategy's active period from the symbol table
@@ -95,7 +99,7 @@
 (syntax-spec
   (binding-class strategy
                  #:description "trading strategy"
-                 #:reference-compiler mutable-reference-compiler)
+                 #:reference-compiler immutable-reference-compiler)
   
   ;; define/strategy - Define a strategy with its active period
   (host-interface/definitions
@@ -116,7 +120,7 @@
    (check-valid-interval! (get-period-from (attribute s1))
                           (get-period-to (attribute s2))
                           #'new)
-   (check-combinable! (attribute s1) (attribute s2) #'s2)
+   (check-combinable! (attribute s1) (attribute s2) (syntax->datum (attribute mid-date)) #'mid-date)
    (store-period! (attribute new)
                   (get-period-from (attribute s1))
                   (get-period-to (attribute s2)))
