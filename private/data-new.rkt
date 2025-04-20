@@ -8,6 +8,7 @@
 (provide (all-defined-out))
 (provide (for-syntax (all-defined-out)))
 (require rackunit)
+(require racket/runtime-path)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                         ;;
@@ -119,7 +120,8 @@
 
 ;; The main stock data hash table
 ;; Maps (key ticker date) -> (stock-data open close)
-(define STOCK-DATA (load-table "./data/1y50-data/pricedata-1y-with-metrics.csv"))
+(define-runtime-path data-file "./data/1y50-data/pricedata-1y-with-metrics.csv")
+(define STOCK-DATA (load-table data-file))
 
 ;; String Date -> StockData
 ;; Get stock data for a ticker on a specific date

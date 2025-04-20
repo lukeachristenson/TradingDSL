@@ -5,7 +5,7 @@
 ;; instead of macros for the trading DSL.
 
 
-
+(require "data-new.rkt" "strat.rkt" "backtest.rkt")
 (provide 
  ;; Function-based strategy definitions
  strategy
@@ -16,10 +16,6 @@
  1y 6m 3m 1m 2w 1w 5d 1d
  ;; Strategy functions
  top-performer
- ;; Result functions
- display-strategy-allocation
- display-strategy-comparison
- display-allocation-difference
  ;; Access functions
  ticker-weight
  ticker-weight-ticker
