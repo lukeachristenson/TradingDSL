@@ -1,79 +1,105 @@
 # TradingDSL
 
-Our DSL is designed to implement and test trading strategies, focusing on forecasting future performance and backtesting historical data to evaluate their effectiveness.
+A domain-specific language for defining, testing, and analyzing stock trading strategies in Racket.
 
-## Project Structure
+## Overview
 
-- `trading-dsl.rkt`: Core DSL definition file including syntax-spec macros
-- `example-trading.rkt`: Example usage of the DSL
-- `racket-code/`: Supporting Racket code
-  - `data-new.rkt`: Data handling and date manipulation utilities
-  - `strat.rkt`: Trading strategy implementation
-  - `backtest.rkt`: Backtesting functionality
-- `data/`: Stock market data for testing strategies
-  - `1y50-data/`: 1-year data for 50 stocks
-  - `5y500-data/`: 5-year data for 500 stocks
+TradingDSL makes it easy to define trading strategies, test them against historical data, and analyze their performance. It provides a clean, declarative syntax for specifying strategies, their active periods, and how they should be combined.
 
-## Core Concepts
+The DSL supports:
 
-### Strategies
+- **Strategy Definition**: Define strategies with explicit active periods
+- **Strategy Composition**: Combine strategies by time period or weighted allocation
+- **Backtesting**: Test strategies against historical stock data
+- **Visualization**: Compare strategies and analyze allocations
 
-A strategy is a function that takes a date and returns a list of ticker-weight pairs, representing the allocation of assets at that date.
-
-### Time Periods
-
-The DSL provides constants for common time periods:
-- `1y` (365 days)
-- `6m` (182 days)
-- `3m` (90 days)
-- `1m` (30 days)
-- `2w` (14 days)
-- `1w` (7 days)
-- `5d` (5 days)
-- `1d` (1 day)
-
-### Key Features
-
-1. Define strategies with trading periods
-2. Combine strategies with time-based switching
-3. Compose strategies with weighted combinations
-4. Backtest strategies over specific time ranges
-
-## DSL Syntax
-
-### Define a Strategy
+## Example
 
 ```racket
-(define/strategy strategy-name strategy-function
-  #:from "YYYY-MM-DD" 
-  #:to "YYYY-MM-DD")
+#lang racket
+(require trading-dsl)
+
+;; Define an annual momentum strategy (active Jan-Jun 2024)
+(define/strategy annual-momentum 
+  (top-performer #:period 1y)
+  #:from "2024-01-05" 
+  #:to "2024-06-05")
+
+;; Define a monthly momentum strategy (active Jan-Dec 2024)
+(define/strategy monthly-momentum 
+  (top-performer #:period 1m)
+  #:from "2024-01-05" 
+  #:to "2024-12-20")
+
+;; Combine strategies with weights
+(define/strategy balanced-momentum
+  (compose-strategies annual-momentum monthly-momentum
+                     #:weights (0.6 0.4))
+  #:from "2024-01-05"
+  #:to "2024-06-05")
+
+;; Backtest the strategy
+(displayln (backtest balanced-momentum 
+                    "2024-01-05" 
+                    "2024-06-05" 
+                    5))
+
+;; Display allocation for a specific date
+(display-strategy-allocation 
+  balanced-momentum 
+  (reduced-date 2024 2 15) 
+  10)
 ```
 
-### Combine Strategies
+The DSL provides both macro-based and function-based implementations:
 
 ```racket
-(define/combined-strategy new-strategy
-  strategy1
-  strategy2
-  #:mid "YYYY-MM-DD")
+;; Function-based alternative
+(define balanced-momentum-fn
+  (strategy (top-performer #:period 1y)
+            #:from "2024-01-05"
+            #:to "2024-06-05"))
+            
+;; Function-based backtest
+(backtest-fn balanced-momentum-fn
+            "2024-01-05"
+            "2024-06-05"
+            5)
 ```
 
-### Compose Strategies with Weights
+## Key Features
 
-```racket
-(compose-strategies strategy1 strategy2
-  #:weights (0.7 0.3))
+- **Compile-time Validation**: The macro-based implementation checks date ranges and strategy compatibility at compile time
+- **Runtime Alternative**: Function-based implementation provides same features with runtime checking
+- **Strategy Composition**: Combine strategies by time period or weighted allocation
+- **Historical Backtesting**: Test strategies against included stock data
+- **Visualization Tools**: Compare strategies and analyze differences
+
+## Installation
+
+Install from the command line:
+
+```
+raco pkg install
+cd TradingDSL
 ```
 
-### Backtest a Strategy
+Or directly from GitHub:
 
-```racket
-(backtest strategy
-  "YYYY-MM-DD"  ; start date
-  "YYYY-MM-DD"  ; end date
-  5)            ; number of top stocks to use
+```
+raco pkg install git://github.com/USERNAME/TradingDSL
 ```
 
-## Example Usage
+## Documentation
 
-See `example-trading.rkt` for complete examples of how to use the DSL.
+Full documentation is available after installation:
+
+```
+raco docs trading-dsl
+```
+
+For implementation details, see the [developer documentation](private/README.md).
+
+## License
+
+MIT

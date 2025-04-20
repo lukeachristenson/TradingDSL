@@ -17,13 +17,12 @@ Our Trading DSL has been implemented using two different approaches:
 
 ### 2. Syntax
 
-- **Macro-based**: Custom syntax with definition forms like `define/strategy` and `define/combined-strategy`, whih allow us to ensure only strategies can be used in certain places (such as when backtesting)
-- **Function-based**: Standard Racket function calls with keyword arguments. 
 
 ### 3. Representation
 
 - **Macro-based**: Uses a symbol table at compile time to track strategy periods.
 - **Function-based**: Uses a runtime struct (`strategy-spec`) to encapsulate both the strategy function and its date range.
+
 
 ## Code Example Comparison
 
@@ -69,14 +68,10 @@ Our Trading DSL has been implemented using two different approaches:
 1. **Early Validation**: Detects errors at compile time rather than runtime.
 2. **Custom Syntax**: Provides a more domain-specific feel to the language.
 
+
 ### Advantages of Function-based Approach
 
 1. **First-class Values**: Strategies are regular values that can be passed to functions and manipulated.
 2. **Simpler Implementation**: Easier to understand and extend without macro expertise.
 3. **Language Portability**: The function-based approach can be more easily ported to languages without macro systems.
 
-## Conclusion
-
-The macro-based approach offers stronger guarantees through compile-time checking and a more domain-specific feel, while the function-based approach offers a simpler implementation with almost the same functionality. 
-
-For our Trading DSL, having both implementations provided us valuable insights into language design tradeoffs. 
