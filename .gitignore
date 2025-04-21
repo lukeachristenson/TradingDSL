@@ -41,3 +41,6 @@ personal-instructions.txt
 /racket-code/compiled
 /tests/compiled
 .DS_Store
+scribblings/*.html
+scribblings/*.js
+scribblings/*.css
