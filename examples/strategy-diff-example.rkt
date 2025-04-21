@@ -2,7 +2,7 @@
 
 ;; Example of comparing strategies with detailed allocation differences
 
-(require "./trading-dsl.rkt")
+(require TradingDSL)
 
 ;; Define strategies with different time horizons
 (define/strategy annual-momentum 

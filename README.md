@@ -98,6 +98,13 @@ Full documentation is available after installation:
 raco docs trading-dsl
 ```
 
+In case that does not work (weird package setup issues due to naming change), run 
+```
+raco scribble scribblings/main.scrbl
+```
+
+Then open the generated index.html file in scribblings/main/index.html
+
 For implementation details, see the [developer documentation](private/README.md).
 
 ## License

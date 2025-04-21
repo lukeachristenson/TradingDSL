@@ -3,7 +3,7 @@
 ;; Trading Strategy DSL - Main module
 ;; Provides both macro-based and function-based implementations
 
-(require (only-in "trading-dsl.rkt"
+(require (only-in "TradingDSL.rkt"
                  define/strategy
                  define/combined-strategy
                  compose-strategies
@@ -18,7 +18,7 @@
                  display-allocation-difference
                  1y 6m 3m 1m 2w 1w 5d 1d))
 
-(require (only-in "function-dsl.rkt"
+(require (only-in "FunctionDSL.rkt"
                  strategy
                  combined-strategy
                  compose-strategies-fn

@@ -2,7 +2,7 @@
 
 ;; Example of comparing strategies with artificial difference
 
-(require "./trading-dsl.rkt")
+(require TradingDSL)
 
 ;; Create two strategies with different stock preferences
 (define (custom-strat1 date)

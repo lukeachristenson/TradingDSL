@@ -1,6 +1,6 @@
 #lang racket
 
-(require "trading-dsl.rkt")
+(require TradingDSL)
 
 ;; =================================================
 ;; 1. Individual Strategies

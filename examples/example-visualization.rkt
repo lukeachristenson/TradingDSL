@@ -2,7 +2,7 @@
 
 ;; Example for visualizing trading strategies
 
-(require "trading-dsl.rkt")
+(require TradingDSL)
 
 ;; Define simple strategies using the DSL
 (define/strategy annual-momentum (top-performer #:period 1y)

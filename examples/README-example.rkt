@@ -3,7 +3,7 @@
 ;; Trading DSL Example
 ;; This file demonstrates the basics of using the Trading DSL
 
-(require "./trading-dsl.rkt")
+(require TradingDSL)
 
 (displayln "\n=== Trading DSL Example ===\n")
 

@@ -3,7 +3,7 @@
 ;; Trading DSL Strategy Comparison Demo
 ;; This demonstrates meaningful differences between strategies
 
-(require "./trading-dsl.rkt")
+(require TradingDSL)
 
 ;; Create strategies with deliberately different preferences
 (define (tech-heavy date)

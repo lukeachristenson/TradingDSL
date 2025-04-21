@@ -1,6 +1,6 @@
 #lang racket
 
-(require "function-dsl.rkt")
+(require "../functionDSL.rkt")
 
 ;; =================================================
 ;; 1. Individual Strategies

@@ -2,11 +2,11 @@
 
 @(require
    scribble/example
-   (for-label racket trading-dsl))
+   (for-label racket TradingDSL))
 
 @title{TradingDSL: A Domain-Specific Language for Trading Strategy Development}
 
-@defmodule[trading-dsl]
+@defmodule[TradingDSL]
 
 @section{Introduction}
 
@@ -41,7 +41,7 @@ Backtesting simulates running a strategy over a historical period to evaluate it
 
   The strategy is constrained to be active from @racket[from-date] to @racket[to-date], which must be strings in the format "YYYY-MM-DD". Compile-time error checking ensures the end date is not before the start date.
 
-  @examples[#:eval (make-base-eval '(require trading-dsl))
+  @examples[#:eval (make-base-eval '(require TradingDSL))
     (eval:error (define/strategy invalid-strategy
                   (lambda (date) '())
                   #:from "2023-12-31"
